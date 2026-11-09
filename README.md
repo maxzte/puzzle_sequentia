@@ -25,7 +25,20 @@ It solves the digital sequence puzzle: given a set of numeric fragments, find th
 
 ---
 
+
+## Prerequisites
+
+  Before running the application, make sure you have the following installed:
+- **Node.js**: version `>= 20.0.0` (recommended `20.x` or `22.x LTS`).
+  Verify your installed version: `node -v`
+- **npm**: version `>= 10.0.0` (bundled with Node.js).
+  Verify your installed version: `npm -v`
+
+---
+
+
 ## Local Development & Testing
+
 
 ### 1. Install Dependencies
 
@@ -33,21 +46,31 @@ It solves the digital sequence puzzle: given a set of numeric fragments, find th
 npm install
 ```
 
+
 ### 2. Start Dev Server (with Auto-Open & Live Reload)
 
 ```bash
 npm run dev
 ```
 
-This automatically starts Vite at `http://localhost:8080`, opens your default browser, and provides instant Hot Module Replacement on save.
+This starts Vite at `http://localhost:8080`, opens your default browser automatically, and provides instant Hot Module Replacement (HMR).
 
-### 3. Run Unit Tests
+  In the web interface, you can:
+- Click **"⚡ Load Sample (142 items)"** to instantly load the problem dataset.
+- Drag & drop your own `.txt` file into the upload drop zone.
+- Paste numeric fragments directly into the manual textarea.
+- Click **"▶ Solve Puzzle"** to run the anytime solver in a background Web Worker.
+- Click **"🗑️ Clear"** at any time to reset inputs and restore the idle state.
 
-Uses modern native test runner (`node:test` & `node:assert/strict`):
+
+### 3. Run Automated Tests & Benchmark
+
+Runs native Node.js unit tests and the 142-item sample benchmark headless without opening a browser (uses `node:test` & `node:assert/strict`):
 
 ```bash
 npm test
 ```
+
 
 ### 4. Code Quality & Linting
 
@@ -61,6 +84,7 @@ npm run lint
 npm run lint:fix
 ```
 
+
 ### 5. Build for Production
 
 ```bash
@@ -68,6 +92,7 @@ npm run build
 ```
 
 Builds optimized, minified static assets into `dist/`.
+
 
 ### 6. Preview Production Build Locally
 
@@ -91,14 +116,14 @@ npm run preview
 │   │   ├── store.js           # Central application state store & observable machine
 │   │   ├── puzzleModel.js     # Unified domain model facade
 │   │   ├── validator.js       # Low-level digit sequence parsing logic
-│   │   └── solver.js          # Low-level Branch-and-Bound trail search
+│   │   └── solver.js          # Branch-and-Bound trail search with upper-bound pruning
 │   ├── views/
 │   │   ├── appView.js         # Pure presentation layer & DOM renderer
 │   │   └── errorBoundaryView.js # Emergency fallback crash screen
 │   ├── controllers/
 │   │   └── appController.js   # Orchestrates state, views, and services
 │   ├── services/
-│   │   ├── solverService.js   # Background Web Worker manager & timer
+│   │   ├── solverService.js   # Background Web Worker manager & real-time timer
 │   │   ├── solver.worker.js   # Dedicated background Web Worker
 │   │   ├── fileService.js     # FileReader & dataset fetcher
 │   │   ├── clipboardService.js# Async Clipboard API wrapper with fallback
@@ -117,11 +142,40 @@ npm run preview
 │   └── benchmark.test.js      # 142-item sample benchmark & sequence verification
 ├── index.html                 # Semantic accessible UI markup (Vite entrypoint)
 ├── package.json               # Project metadata, Vite devDependencies & npm scripts
-└── vite.config.js             # Vite configuration (port 8080, auto-open, esnext)
+└── vite.config.js             # Vite configuration (port 8080, auto-open, es2022)
 ```
 
 ---
 
-## CI / CD & Deployment
 
-A complete GitHub Actions workflow is provided in `.github/workflows/ci.yml`: 3. **CI**: Automatically runs tests and builds Vite across Node.js 20.x and 22.x on every push and pull request. 4. **CD**: Automatically deploys the built `dist/` directory to **Cloudflare Pages** upon merging to `main`.
+## CI / CD & Deployment (Cloudflare Pages)
+
+The project supports multiple deployment workflows to **Cloudflare Pages**:
+
+
+### Option A: Automated Deployment via GitHub Actions (configured in `.github/workflows/ci.yml`)
+
+5. Push your repository to **GitHub**.
+6. Navigate to your repository's **Settings** ➔ **Secrets and variables** ➔ **Actions** ➔ **New repository secret**.
+7. Add two secrets obtained from your Cloudflare account:
+   - `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare Account ID (found on the right sidebar of your Cloudflare dashboard).
+   - `CLOUDFLARE_API_TOKEN`: An API token created with Cloudflare Pages edit permissions (_My Profile_ ➔ _API Tokens_ ➔ _Create Token_ ➔ _Cloudflare Pages_ template).
+8. Every push or merge to the `main` branch will automatically run tests across Node.js 20 and 22 and deploy static assets to Cloudflare Pages.
+
+### Option B: Cloudflare Dashboard Git Integration
+
+3. Go to [dash.cloudflare.com](https://dash.cloudflare.com/) ➔ **Workers & Pages** ➔ **Create application** ➔ **Pages** ➔ **Connect to Git**.
+4. Select your repository and configure the build settings:
+   - **Framework preset**: `Vite` (or `None`)
+   - **Build command**: `npm run build`
+   - **Build output directory**: `dist`
+6. Click **Save and Deploy**.
+
+### Option C: Direct Terminal Deployment via Wrangler CLI
+
+You can also deploy directly from your local terminal without Git credentials:
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name puzzle-sequentia
+```
