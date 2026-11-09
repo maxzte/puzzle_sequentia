@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#14151f">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:;">
+  <title>Digital Puzzle Sequencer</title>
+  <meta name="description" content="High-performance client-side digital sequence puzzle solver. Finds the longest chain of numbers connected by overlapping 2-digit prefixes and suffixes.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>">
+  <!-- OpenGraph Metadata -->
+  <meta property="og:title" content="Digital Puzzle Sequencer">
+  <meta property="og:description" content="Assemble the longest chain of 2-digit overlapping numeric fragments client-side.">
+  <meta property="og:type" content="website">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <div class="logo-icon" aria-hidden="true">🧩</div>
+        <div>
+          <h1>Digital Puzzle Sequencer</h1>
+          <p class="subtitle">Assemble the longest chain of 2-digit overlapping numeric fragments</p>
+        </div>
+      </div>
+      <div class="header-badge">
+        <span class="status-dot"></span> 100% Client-Side & Secure
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <!-- Input Section -->
+    <section class="card input-card" aria-labelledby="input-heading">
+      <div class="card-header">
+        <h2 id="input-heading">Input Fragments</h2>
+        <div class="header-actions">
+          <button id="btn-load-sample" class="btn btn-secondary btn-sm" type="button">
+            ⚡ Load Sample (142 items)
+          </button>
+        </div>
+      </div>
+
+      <!-- Drag & Drop Zone -->
+      <div
+        id="drop-zone"
+        class="drop-zone"
+        tabindex="0"
+        role="button"
+        aria-busy="false"
+        aria-label="File upload dropzone. Drag and drop a .txt file here or press Enter to browse"
+      >
+        <div id="drop-content" class="drop-content">
+          <div class="drop-icon" aria-hidden="true">📁</div>
+          <p class="drop-prompt">
+            <strong>Drag & drop your <code>.txt</code> file here</strong> or <span class="browse-link">browse</span>
+          </p>
+          <p class="drop-help">One numeric fragment per line (digits only, length &ge; 2)</p>
+        </div>
+
+        <div id="drop-loading" class="drop-loading hidden" aria-live="polite">
+          <div class="spinner" aria-hidden="true"></div>
+          <p id="drop-loading-text" class="drop-loading-text">Reading & parsing file...</p>
+        </div>
+
+        <input type="file" id="file-input" accept=".txt,text/plain" class="visually-hidden" aria-hidden="true">
+      </div>
+
+      <!-- Manual Input Collapsible -->
+      <details class="manual-input-details" id="manual-details">
+        <summary class="details-summary">Or paste fragments manually</summary>
+        <div class="textarea-wrapper">
+          <label for="manual-textarea" class="visually-hidden">Paste numeric fragments here</label>
+          <textarea
+            id="manual-textarea"
+            rows="6"
+            placeholder="608017&#10;248460&#10;962282&#10;994725&#10;177092"
+            spellcheck="false"
+          ></textarea>
+        </div>
+      </details>
+
+      <!-- Input Status / Summary -->
+      <div id="input-summary" class="input-summary hidden" aria-live="polite">
+        <span id="summary-text"></span>
+      </div>
+
+      <!-- Error Alert with Diagnostics Actions -->
+      <div id="error-alert" class="alert alert-error hidden" role="alert" aria-live="assertive">
+        <p id="error-text" class="error-text"></p>
+        <div id="error-actions" class="error-actions hidden">
+          <button id="btn-copy-error" class="btn btn-secondary btn-sm" type="button">
+            📋 Copy Error Report
+          </button>
+          <button id="btn-download-error" class="btn btn-secondary btn-sm" type="button">
+            💾 Download Diagnostics
+          </button>
+          <a
+            id="link-report-issue"
+            class="btn btn-secondary btn-sm link-issue"
+            href="https://github.com/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            🐙 Open GitHub Issue
+          </a>
+        </div>
+      </div>
+
+      <!-- Control Toolbar -->
+      <div class="card-footer">
+        <button id="btn-solve" class="btn btn-primary" type="button" disabled>
+          ▶ Solve Puzzle
+        </button>
+        <button id="btn-stop" class="btn btn-danger hidden" type="button">
+          ⏹ Stop / Reset
+        </button>
+      </div>
+    </section>
+
+    <!-- Progress & Status Section -->
+    <section id="progress-card" class="card progress-card hidden" aria-labelledby="progress-heading">
+      <div class="card-header">
+        <h2 id="progress-heading">Computation Status</h2>
+        <span id="badge-status" class="badge badge-running">Running</span>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-item">
+          <span class="metric-label">Best Chain Length</span>
+          <span id="metric-chain-count" class="metric-value">0</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Total Digits</span>
+          <span id="metric-digits-count" class="metric-value">0</span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Elapsed Time</span>
+          <span id="metric-elapsed" class="metric-value">0.0s</span>
+        </div>
+      </div>
+      <div class="progress-bar-container" id="progress-bar-container" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+        <div id="progress-bar-fill" class="progress-bar-fill is-running"></div>
+      </div>
+    </section>
+
+    <!-- Result Section -->
+    <section id="result-card" class="card result-card hidden" aria-labelledby="result-heading">
+      <div class="card-header">
+        <h2 id="result-heading">Longest Sequence Result</h2>
+        <div class="header-actions">
+          <button id="btn-copy" class="btn btn-secondary btn-sm" type="button">
+            📋 Copy Result
+          </button>
+        </div>
+      </div>
+
+      <div class="result-box-container">
+        <label for="result-output" class="visually-hidden">Concatenated numeric sequence</label>
+        <textarea id="result-output" class="result-output" readonly rows="5"></textarea>
+      </div>
+      
+      <div class="result-meta">
+        <span id="result-fragments-info" class="meta-tag"></span>
+        <span id="result-digits-info" class="meta-tag"></span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Zero server uploads. Computed locally inside your browser via Web Worker. Static Cloudflare Pages build.</p>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+

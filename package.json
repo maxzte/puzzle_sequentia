@@ -1,0 +1,30 @@
+{
+  "name": "puzzle-sequentia",
+  "version": "1.0.0",
+  "description": "Digital Sequence Puzzle Solver for Cloudflare Pages",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --open",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test tests/*.test.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0",
+    "vite": "^6.2.0"
+  },
+  "keywords": [
+    "puzzle",
+    "solver",
+    "vanilla-js",
+    "cloudflare-pages",
+    "web-worker",
+    "vite"
+  ],
+  "author": "",
+  "license": "MIT"
+}
