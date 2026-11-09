@@ -34,6 +34,7 @@ export class AppController {
       onFileSelected: (file) => this.handleFileSelected(file),
       onTextInput: (text) => this.handleTextInput(text),
       onLoadSample: () => this.handleLoadSample(),
+      onClear: () => this.handleClear(),
       onSolve: () => this.handleSolve(),
       onStop: () => this.handleStop(),
       onCopy: () => this.handleCopyResult(),
@@ -105,6 +106,15 @@ export class AppController {
   }
 
   /**
+   * Clears all inputs and resets application state.
+   */
+  handleClear() {
+    this.solverService.stop();
+    this.view.setManualText('');
+    this.store.clearInput();
+  }
+
+  /**
    * Starts solver execution in background Web Worker.
    */
   handleSolve() {
@@ -116,6 +126,9 @@ export class AppController {
     this.solverService.start(fragments, {
       onProgress: (data) => {
         this.store.updateProgress(data);
+      },
+      onTick: (elapsed) => {
+        this.store.updateElapsed(elapsed);
       },
       onDone: (final) => {
         this.store.finishSolving(final);

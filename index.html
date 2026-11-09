@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#14151f">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; worker-src 'self' blob:;">
   <title>Digital Puzzle Sequencer</title>
   <meta name="description" content="High-performance client-side digital sequence puzzle solver. Finds the longest chain of numbers connected by overlapping 2-digit prefixes and suffixes.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>">
@@ -37,6 +37,9 @@
         <div class="header-actions">
           <button id="btn-load-sample" class="btn btn-secondary btn-sm" type="button">
             ⚡ Load Sample (142 items)
+          </button>
+          <button id="btn-clear" class="btn btn-secondary btn-sm hidden" type="button">
+            🗑️ Clear
           </button>
         </div>
       </div>

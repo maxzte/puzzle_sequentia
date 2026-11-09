@@ -172,6 +172,21 @@ export class Store {
   }
 
   /**
+   * Updates only elapsed time metric during solving.
+   * @param {string} elapsed
+   */
+  updateElapsed(elapsed) {
+    if (this.state.status === 'running') {
+      this.setState({
+        metrics: {
+          ...this.state.metrics,
+          elapsed,
+        },
+      });
+    }
+  }
+
+  /**
    * Updates solver progress metrics and current best result.
    * @param {{ count: number, length: number, result: string, elapsed: string }} progress
    */

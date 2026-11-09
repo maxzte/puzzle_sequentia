@@ -91,6 +91,21 @@ test('Store: state transitions for solving lifecycle', () => {
   assert.equal(store.getState().status, 'stopped');
 });
 
+test('Store: updateElapsed updates time during solving without altering result', () => {
+  const store = new Store();
+  store.setInputFragments(['123456', '567890'], 'test');
+  store.startSolving();
+  assert.equal(store.getState().metrics.elapsed, '0.0s');
+
+  store.updateElapsed('1.5s');
+  assert.equal(store.getState().metrics.elapsed, '1.5s');
+
+  // Should ignore if not running
+  store.stopSolving();
+  store.updateElapsed('2.0s');
+  assert.equal(store.getState().metrics.elapsed, '1.5s');
+});
+
 test('Store: copied state toggle', () => {
   const store = new Store();
   assert.equal(store.getState().copied, false);

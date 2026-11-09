@@ -15,6 +15,7 @@ export class View {
     this.manualDetails = document.getElementById("manual-details");
     this.manualTextarea = document.getElementById("manual-textarea");
     this.btnLoadSample = document.getElementById("btn-load-sample");
+    this.btnClear = document.getElementById("btn-clear");
     this.btnSolve = document.getElementById("btn-solve");
     this.btnStop = document.getElementById("btn-stop");
     this.inputSummary = document.getElementById("input-summary");
@@ -68,6 +69,22 @@ export class View {
       this.dropLoading.classList.add("hidden");
       this.btnLoadSample.disabled = false;
       this.manualTextarea.disabled = false;
+    }
+
+    // 1.1 Render Clear Button Visibility
+    const hasUserData =
+      state.fragments.length > 0 ||
+      Boolean(this.manualTextarea?.value.trim()) ||
+      state.status === "error";
+
+    if (this.btnClear) {
+      if (hasUserData) {
+        this.btnClear.classList.remove("hidden");
+        this.btnClear.disabled =
+          state.status === "running" || state.status === "loading";
+      } else {
+        this.btnClear.classList.add("hidden");
+      }
     }
 
     // 2. Render Error Alert
@@ -201,6 +218,7 @@ export class View {
    * @param {(file: File) => void} handlers.onFileSelected
    * @param {(text: string) => void} handlers.onTextInput
    * @param {() => void} handlers.onLoadSample
+   * @param {() => void} [handlers.onClear]
    * @param {() => void} handlers.onSolve
    * @param {() => void} handlers.onStop
    * @param {() => void} handlers.onCopy
@@ -211,6 +229,7 @@ export class View {
     onFileSelected,
     onTextInput,
     onLoadSample,
+    onClear,
     onSolve,
     onStop,
     onCopy,
@@ -252,13 +271,20 @@ export class View {
       if (file) onFileSelected(file);
     });
 
-    // Manual textarea input
+    // Manual textarea input with light debounce
+    let debounceTimer = null;
     this.manualTextarea.addEventListener("input", () => {
-      onTextInput(this.manualTextarea.value);
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        onTextInput(this.manualTextarea.value);
+      }, 150);
     });
 
     // Action buttons
     this.btnLoadSample.addEventListener("click", onLoadSample);
+    if (this.btnClear && onClear) {
+      this.btnClear.addEventListener("click", onClear);
+    }
     this.btnSolve.addEventListener("click", onSolve);
     this.btnStop.addEventListener("click", onStop);
     this.btnCopy.addEventListener("click", () => onCopy());

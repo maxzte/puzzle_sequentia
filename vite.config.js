@@ -6,7 +6,7 @@ export default defineConfig({
     open: true,
   },
   build: {
-    target: 'esnext',
+    target: 'es2022',
   },
   worker: {
     format: 'es',

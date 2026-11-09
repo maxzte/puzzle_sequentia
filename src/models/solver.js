@@ -126,6 +126,9 @@ export function solveLongestChain(fragments, options = {}) {
   let iterations = 0;
   let isAborted = false;
 
+  // Pre-calculate total unused edges count for upper-bound pruning
+  let remainingEdges = N;
+
   function reportBest() {
     if (onProgress && bestTrail.length > 0) {
       const result = reconstructSequence(bestTrail, fragments);
@@ -149,6 +152,12 @@ export function solveLongestChain(fragments, options = {}) {
       reportBest();
     }
 
+    // Upper bound branch & bound pruning:
+    // If the maximum possible trail length cannot exceed bestTrail, backtrack immediately
+    if (currentTrail.length + remainingEdges <= bestTrail.length) {
+      return;
+    }
+
     const edges = nodeEdges.get(u);
     if (!edges || edges.length === 0) return;
 
@@ -156,11 +165,13 @@ export function solveLongestChain(fragments, options = {}) {
       const edge = edges[i];
       if (used[edge.edgeIdx] === 0) {
         used[edge.edgeIdx] = 1;
+        remainingEdges--;
         currentTrail.push(edge.edgeIdx);
 
         dfs(edge.target);
 
         currentTrail.pop();
+        remainingEdges++;
         used[edge.edgeIdx] = 0;
 
         if (isAborted) return;
@@ -170,6 +181,8 @@ export function solveLongestChain(fragments, options = {}) {
 
   for (let i = 0; i < startNodes.length; i++) {
     if (signal?.aborted || isAborted) break;
+    // If even using all available edges cannot beat the best trail, we are done
+    if (remainingEdges <= bestTrail.length) break;
     dfs(startNodes[i]);
   }
 

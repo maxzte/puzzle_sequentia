@@ -8,7 +8,7 @@ It solves the digital sequence puzzle: given a set of numeric fragments, find th
 
 ## Features
 
-- **Modern Vite Dev Environment**: Instant server startup (< 200ms), automatic browser opening, and Hot Module Replacement (HMR).
+- **Modern Vite Dev Environment**: Instant server startup, automatic browser opening, and Hot Module Replacement (HMR).
 - **100% Client-Side & Private**: Runs entirely in the user's browser inside a dedicated Web Worker (`solver.worker.js`). Sensitive files and data never touch any server.
 - **High Performance (Anytime Branch & Bound DFS)**: Non-blocking 60fps UI that streams progressive improvements in real time and can be paused, stopped, or re-solved.
 - **Flexible Data Input**:
@@ -27,13 +27,11 @@ It solves the digital sequence puzzle: given a set of numeric fragments, find th
 
 ## Local Development & Testing
 
-
 ### 1. Install Dependencies
 
 ```bash
 npm install
 ```
-
 
 ### 2. Start Dev Server (with Auto-Open & Live Reload)
 
@@ -126,6 +124,4 @@ npm run preview
 
 ## CI / CD & Deployment
 
-A complete GitHub Actions workflow is provided in `.github/workflows/ci.yml`:
-3. **CI**: Automatically runs tests and builds Vite across Node.js 20.x and 22.x on every push and pull request.
-4. **CD**: Automatically deploys the built `dist/` directory to **Cloudflare Pages** upon merging to `main`.
+A complete GitHub Actions workflow is provided in `.github/workflows/ci.yml`: 3. **CI**: Automatically runs tests and builds Vite across Node.js 20.x and 22.x on every push and pull request. 4. **CD**: Automatically deploys the built `dist/` directory to **Cloudflare Pages** upon merging to `main`.

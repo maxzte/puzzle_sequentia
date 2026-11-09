@@ -30,15 +30,18 @@ export class SolverService {
    * @param {string[]} fragments
    * @param {Object} callbacks
    * @param {(data: { count: number, length: number, result: string, elapsed: string }) => void} callbacks.onProgress
+   * @param {(elapsed: string) => void} [callbacks.onTick]
    * @param {(data: { count: number, length: number, result: string, elapsed: string }) => void} callbacks.onDone
    * @param {(err: Error) => void} callbacks.onError
    */
-  start(fragments, { onProgress, onDone, onError }) {
+  start(fragments, { onProgress, onTick, onDone, onError }) {
     this.stop();
 
     this.startTime = performance.now();
     this.timerInterval = setInterval(() => {
-      // Periodic timer tick
+      if (onTick && this.isRunning()) {
+        onTick(this.getElapsedFormatted());
+      }
     }, 100);
 
     try {
